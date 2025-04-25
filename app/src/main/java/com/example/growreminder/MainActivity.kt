@@ -31,7 +31,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
-        FirebaseAuth.getInstance().signOut()
+        // Đã xóa dòng đăng xuất người dùng: FirebaseAuth.getInstance().signOut()
         enableEdgeToEdge()
 
         try {
@@ -70,15 +70,20 @@ class MainActivity : ComponentActivity() {
             Log.e("Firebase", "Firebase initialization failed", e)
         }
 
+        // Kiểm tra xem app có được mở từ thông báo không
+        val isFromNotification = intent.getBooleanExtra("is_from_notification", false)
+        val notificationDestination = intent.getStringExtra("notification_destination")
+
         setContent {
             GrowReminderTheme {
                 Scaffold { innerPadding ->
-                    AppNavigation(Modifier.padding(innerPadding))
+                    AppNavigation(
+                        modifier = Modifier.padding(innerPadding),
+                        isFromNotification = isFromNotification,
+                        notificationDestination = notificationDestination
+                    )
                 }
             }
         }
     }
 }
-
-
-

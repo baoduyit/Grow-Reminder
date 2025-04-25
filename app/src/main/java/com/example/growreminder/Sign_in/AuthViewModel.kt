@@ -23,6 +23,16 @@ class AuthViewModel : ViewModel() {
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
     init {
+        // Kiểm tra xem người dùng đã đăng nhập chưa
+        updateAuthState()
+
+        // Thêm listener theo dõi thay đổi trạng thái xác thực
+        auth.addAuthStateListener { firebaseAuth ->
+            updateAuthState()
+        }
+    }
+
+    private fun updateAuthState() {
         if (auth.currentUser != null) {
             _authState.value = AuthState.Authenticated
         } else {
@@ -37,9 +47,8 @@ class AuthViewModel : ViewModel() {
                 Log.d("AuthViewModel", "Creating user with: $email")
                 auth.createUserWithEmailAndPassword(email, password).await()
 
-                // Đăng nhập lại để chắc chắn currentUser được khởi tạo
-                auth.signInWithEmailAndPassword(email, password).await()
-
+                // Không đăng nhập tự động ở đây nữa
+                // Chỉ báo hiệu là đăng ký đã thành công
                 _authState.value = AuthState.Authenticated
             } catch (e: Exception) {
                 Log.e("AuthViewModel", "Signup failed: ${e.message}", e)

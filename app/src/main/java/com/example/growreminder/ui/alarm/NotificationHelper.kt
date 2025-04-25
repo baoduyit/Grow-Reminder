@@ -13,6 +13,7 @@ import android.os.VibratorManager
 import androidx.core.app.NotificationCompat
 import com.example.growreminder.MainActivity
 import com.example.growreminder.R
+import com.google.firebase.auth.FirebaseAuth
 
 class NotificationHelper(private val context: Context) {
 
@@ -42,8 +43,14 @@ class NotificationHelper(private val context: Context) {
     }
 
     fun showNotification(id: Int, title: String, message: String) {
+        // Kiểm tra trạng thái đăng nhập
+        val isLoggedIn = FirebaseAuth.getInstance().currentUser != null
+
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            // Thêm thông tin về điểm đến và trạng thái đăng nhập
+            putExtra("notification_destination", "schedule_list")
+            putExtra("is_from_notification", true)
         }
 
         val pendingIntent = PendingIntent.getActivity(
@@ -56,7 +63,7 @@ class NotificationHelper(private val context: Context) {
         val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground) // ✅ Đổi thành icon hợp lệ nếu cần
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)

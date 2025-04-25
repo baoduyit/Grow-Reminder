@@ -28,7 +28,8 @@ import androidx.compose.ui.text.style.TextAlign
 fun LoginPage(
     modifier: Modifier = Modifier,
     navController: NavController,
-    authViewModel: AuthViewModel
+    authViewModel: AuthViewModel,
+    notificationDestination: String? = null
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -38,8 +39,15 @@ fun LoginPage(
     LaunchedEffect(authState) {
         when (authState) {
             is AuthState.Authenticated -> {
-                navController.navigate("profile") {
-                    popUpTo("login") { inclusive = true }
+                // Nếu có điểm đến từ thông báo, chuyển đến đó
+                if (notificationDestination != null) {
+                    navController.navigate(notificationDestination) {
+                        popUpTo("login") { inclusive = true }
+                    }
+                } else {
+                    navController.navigate("profile") {
+                        popUpTo("login") { inclusive = true }
+                    }
                 }
             }
             is AuthState.Error -> {
@@ -133,4 +141,3 @@ fun LoginPage(
         }
     }
 }
-

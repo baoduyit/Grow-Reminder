@@ -16,6 +16,7 @@ import androidx.navigation.NavController
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.growreminder.sign_in.AuthState
 import com.example.growreminder.sign_in.AuthViewModel
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun SignupPage(
@@ -31,10 +32,19 @@ fun SignupPage(
     LaunchedEffect(authState) {
         when (authState) {
             is AuthState.Authenticated -> {
+                // Đầu tiên reset auth state để tránh điều kiện đua
+                authViewModel.resetAuthState()
+
+                // Đăng xuất người dùng sau khi đăng ký thành công
+                FirebaseAuth.getInstance().signOut()
+
+                // Hiển thị thông báo đăng ký thành công
+                Toast.makeText(context, "Đăng ký thành công! Vui lòng đăng nhập.", Toast.LENGTH_SHORT).show()
+
+                // Điều hướng về trang đăng nhập
                 navController.navigate("login") {
                     popUpTo("signup") { inclusive = true }
                 }
-                authViewModel.resetAuthState()
             }
             is AuthState.Error -> {
                 Toast.makeText(context, (authState as AuthState.Error).message, Toast.LENGTH_SHORT).show()
@@ -57,7 +67,7 @@ fun SignupPage(
 
         Spacer(modifier = Modifier.height(60.dp))
 
-        // ✅ Thu nhỏ chiều ngang input
+        // Thu nhỏ chiều ngang input
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
@@ -76,7 +86,7 @@ fun SignupPage(
 
         Spacer(modifier = Modifier.height(30.dp))
 
-        // ✅ Button cũng nhỏ lại một tí
+        // Button cũng nhỏ lại một tí
         Button(
             onClick = { authViewModel.signup(email, password) },
             enabled = authState != AuthState.Loading,
